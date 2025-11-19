@@ -1,102 +1,113 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<title>Calcolatrice MBK</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SXRATE</title>
 
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon.png">
-<meta name="theme-color" content="#111">
+    <link rel="manifest" href="manifest.json" />
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #ff008c;
+            color: white;
+            text-align: center;
+        }
 
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #111;
-        color: #fff;
-        margin: 0;
-        padding: 40px;
-        text-align: center;
-    }
-    .box {
-        background: #1c1c1c;
-        padding: 30px;
-        border-radius: 15px;
-        width: 350px;
-        margin: auto;
-        box-shadow: 0 0 20px rgba(255,255,255,0.1);
-    }
-    input {
-        width: 80%;
-        padding: 12px;
-        font-size: 18px;
-        border-radius: 8px;
-        border: none;
-        text-align: center;
-        margin-bottom: 20px;
-    }
-    button {
-        background: #ff4f4f;
-        color: white;
-        padding: 12px 20px;
-        border: none;
-        border-radius: 8px;
-        font-size: 18px;
-        cursor: pointer;
-    }
-    button:hover {
-        background: #ff6c6c;
-    }
-    #result {
-        margin-top: 20px;
-        font-size: 26px;
-        font-weight: bold;
-    }
-</style>
+        .screen { display: none; padding: 20px; }
+        .active { display: block; }
+
+        button {
+            background: white;
+            color: #ff008c;
+            border: none;
+            padding: 15px;
+            width: 80%;
+            margin-top: 15px;
+            border-radius: 14px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 6px;
+            font-size: 18px;
+            border-radius: 10px;
+            border: none;
+        }
+
+        .scale-box {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
 
-<h1>Calcolatrice MBK</h1>
-<p>Costante Marinello-Barbiani</p>
+<!-- SCHERMATA 1 — HOME -->
+<div id="home" class="screen active">
+    <h1 style="font-size: 50px; margin-top: 20px;">SXRATE</h1>
 
-<div class="box">
-    <input type="number" step="0.01" id="inputValue" placeholder="Inserisci la tua media">
-    <button onclick="calcola()">CALCOLA</button>
-    <div id="result"></div>
+    <button onclick="showScreen('inizio')">INIZIO</button>
+    <button onclick="showScreen('storico')">STORICO</button>
+
+    <div class="scale-box">
+        <h2>Scala Valori</h2>
+        <p>0 – 0.5 → ASSOLUTAMENTE NON CHIAVARE</p>
+        <p>0.5 – 0.9 → SE È GIÀ DENTRO NON LO TOGLIERE</p>
+        <p>1 – 4.5 → SCOPAAAAA</p>
+        <p>4.5 – 5 → LIVELLO STXPRO</p>
+        <p>5 – +∞ → POTRESTI MORIRE PER CHIAVARCI</p>
+    </div>
 </div>
 
-<script>
-const MBK = 4;
+<!-- SCHERMATA 2 — INIZIO -->
+<div id="inizio" class="screen">
+    <h2>Nuova Valutazione</h2>
 
-function calcola() {
-    const x = parseFloat(document.getElementById("inputValue").value);
-    let result;
+    <input id="nome" placeholder="Nome">
 
-    if (isNaN(x)) {
-        result = "Inserisci un numero valido.";
-    } else if (x < 0) {
-        result = "La media non può essere negativa.";
-    } else if (x < 4) {
-        result = 0.125 * x;
-    } else if (x < 7) {
-        result = 0.5 + ((x - 4) / 3) * 0.5;
-    } else if (x < 8.5) {
-        result = 1;
-    } else if (x <= 10) {
-        result = 1 + 4 * Math.pow((x - 8.5) / 1.5, MBK);
-    } else {
-        result = 5 + Math.exp(MBK * (x - 10));
-    }
+    <h3>Parametri (1–10 con 3 decimali)</h3>
 
-    document.getElementById("result").innerHTML =
-        "Voto MBK:<br><span style='color:#ff4f4f'>" +
-        (typeof result === "number" ? result.toFixed(4) : result) + "</span>";
-}
+    <input id="p1" placeholder="Bellezza (viso)">
+    <input id="p2" placeholder="Tette">
+    <input id="p3" placeholder="Culo">
+    <input id="p4" placeholder="Fascino">
+    <input id="p5" placeholder="Voce">
+    <input id="p6" placeholder="Abbigliamento">
+    <input id="p7" placeholder="Porkaggine">
+    <input id="p8" placeholder="Fiero con gli amici?">
+    <input id="p9" placeholder="Condizione vs età">
 
-// PWA service worker
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("service-worker.js").catch(()=>{});
-}
-</script>
+    <h3>Bonus (0–1 con 3 decimali)</h3>
+    <input id="bonus" placeholder="Bonus">
 
+    <button onclick="calculate()">CALCOLA</button>
+    <button onclick="showScreen('home')">INDIETRO</button>
+</div>
+
+<!-- SCHERMATA 3 — RISULTATO -->
+<div id="risultato" class="screen">
+    <h1 id="valore"></h1>
+    <h2 id="didascalia"></h2>
+
+    <button onclick="saveResult()">SALVA NELLO STORICO</button>
+    <button onclick="showScreen('home')">HOME</button>
+</div>
+
+<!-- SCHERMATA 4 — STORICO -->
+<div id="storico" class="screen">
+    <h1>Storico</h1>
+    <div id="lista"></div>
+
+    <button onclick="showScreen('home')">HOME</button>
+</div>
+
+<script src="app.js"></script>
 </body>
 </html>
